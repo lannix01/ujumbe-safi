@@ -1,152 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toxicity Detector</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/teststyles.css') }}">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1 class="gradient-text">_UJUMBE SAFI_ Toxicity Detector</h1>
-      <p class="glow">Welcome To Ujumbe Safi Kindly Enter Your Tweet for Analysis</p>
-    </header>
-    
-    <main>
-      <section class="input-section">
-        <textarea id="user-input" placeholder="Enter text here..."></textarea>
-        <button id="detect-button">Check Toxicity</button>
-        <div id="popup" class="hidden">
-        </div>
-        <p id="works" class="blinking-text" font-size="80" font-style="Calibri"><b>Working in the background may take some seconds.👌</b></p>
-      </section>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toxicity Detector | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teststyles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body>
+    <main class="detector-shell">
+      <section class="detector-panel">
+        <a class="back-link" href="{{ url_for('home') }}">
+          <span class="material-icons">arrow_back</span>
+          Dashboard
+        </a>
+        <form method="POST" action="{{ url_for('manual_test') }}">
+          <label for="text_input">Text to analyze</label>
+          <textarea id="text_input" name="text_input" placeholder="Enter text here..." required>{{ original_text }}</textarea>
+          <button type="submit">
+            <span class="material-icons">manage_search</span>
+            Check Toxicity
+          </button>
+        </form>
 
-      <section class="results-section">
-        <div id="result-tab"></div>
-        <div class="graph-container">
-          <canvas id="myChart"></canvas>
-        </div>
-        <div class="metrics">
-          <p>Accuracy: <span id="accuracy">- %</span></p>
-          <p>Precision: <span id="precision">- %</span></p>
-          <p>Error: <span id="error">- %</span></p>
-          <p>F1 Score: <span id="f1-score">-</span></p>
-        </div>
+        {% if error %}
+          <div class="result-card error">
+            <span class="material-icons">error</span>
+            <div>
+              <strong>Analysis failed</strong>
+              <p>{{ error }}</p>
+            </div>
+          </div>
+        {% elif result %}
+          <div class="result-card {{ 'toxic' if result == 'Toxic' else 'safe' }}">
+            <span class="material-icons">{{ 'report' if result == 'Toxic' else 'verified' }}</span>
+            <div>
+              <strong>{{ result }}</strong>
+              <p>
+                {% if result == 'Toxic' %}
+                  The model flagged this text as harmful, so it should not be posted.
+                {% else %}
+                  The model did not flag this text as toxic.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          {% if translated_text and translated_text != original_text %}
+            <div class="translation-card">
+              <span>Translated input</span>
+              <p>{{ translated_text }}</p>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="result-card idle">
+            <span class="material-icons">psychology</span>
+            <div>
+              <strong>Ready to analyze</strong>
+              <p>Submit a phrase to see whether the trained model marks it toxic or non-toxic.</p>
+            </div>
+          </div>
+        {% endif %}
       </section>
     </main>
-    <footer class="blinking-text" font-size="80" font-style="Calibri">
-      <p>&copy; ApexGroup 2024</p>
-    </footer>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-  const detectButton = document.getElementById('detect-button');
-  const popup = document.getElementById('popup');
-  const resultTab = document.getElementById('result-tab');
-  const accuracySpan = document.getElementById('accuracy');
-  const precisionSpan = document.getElementById('precision');
-  const errorSpan = document.getElementById('error');
-  const f1ScoreSpan = document.getElementById('f1-score');
-  const userInput = document.getElementById('user-input');
-
-  detectButton.addEventListener('click', function() {
-    
-    detectButton.textContent = "Analyzing. Please wait...";
-    
-    popup.classList.remove('hidden');
-
-    
-    setTimeout(function() {
-    
-      popup.classList.add('hidden');
-
-     
-      detectButton.textContent = "Check Toxicity";
-
-      
-      const accuracy = Math.floor(Math.random() * (72 - 46 + 1)) + 46;
-      const precision = Math.floor(Math.random() * (72 - 46 + 1)) + 46;
-      const error = Math.floor(Math.random() * (72 - 46 + 1)) + 46;
-      const f1Score = Math.floor(Math.random() * (72 - 46 + 1)) + 46;
-
-      accuracySpan.textContent = accuracy + '%';
-      precisionSpan.textContent = precision + '%';
-      errorSpan.textContent = error + '%';
-      f1ScoreSpan.textContent = f1Score;
-
-      //model
-      const toxicWords = ['matako', 'malaya', 'kuma', 'nigga', 'mjinga', 'mshenzi', 'chupa nyeusi', 'panya', 'mkundu', 'asshole', 'gay', 'shoga', 'chupa nyeusi', 'mdangaji','tomba', 'kutombwa',
-                      'msenge', 'kumamako', 'shoga','umbwa', 'nyapu', 'ikus', 'punyeto'];
-      let isToxic = false;
-      for (const word of toxicWords) {
-        if (userInput.value.toLowerCase().includes(word)) {
-          isToxic = true;
-          break;
-        }
-      }
-
-      // result
-      if (isToxic) {
-        resultTab.innerHTML = '<div class="toxic-section">Toxic</div>';
-        detectButton.textContent = "Check Toxicity";
-        detectButton.classList.add('Toxic'); 
-        detectButton.classList.remove('not-toxic'); 
-      } else {
-        resultTab.innerHTML = '<div class="not-toxic-section">Not Toxic</div>';
-        detectButton.textContent = "Check Toxicity";
-        detectButton.classList.add('Not-toxic'); 
-        detectButton.classList.remove('toxic');
-        document.getElementById('works').style.display = 'none';
-      }
-
-      //chart
-      updateChart();
-    }, 5000); // 5 secs
-  });
-
-  function updateChart() {
-    const ctx = document.getElementById('myChart').getContext('2d');
-    const labels = ['Accuracy', 'Precision', 'Error', 'F1 Score'];
-    const data = [Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100];
-
-    const myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: '%',
-          data: data,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
-        }
-      }
-    });
-  }
-});
-
-  </script>
-  <!-- <script src="{{ url_for('static', filename='js/testscript.js') }}"></script> -->
-</body>
+  </body>
 </html>

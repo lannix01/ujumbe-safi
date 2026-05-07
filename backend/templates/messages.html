@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('user_home') }}">
+          <span class="material-icons">arrow_back</span>
+          Home
+        </a>
+        <h1>@{{ other_user.username if other_user else 'user' }}</h1>
+      </header>
+
+      <section class="admin-card message-thread">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="popup error">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% for message in thread %}
+          <div class="message-bubble {{ 'mine' if message.sender_id == session.id else '' }}">
+            <strong>@{{ message.sender_username }}</strong>
+            <p>{{ message.message }}</p>
+          </div>
+        {% else %}
+          <p>No messages yet.</p>
+        {% endfor %}
+      </section>
+
+      <form class="message-form" method="POST">
+        <textarea name="message" placeholder="Write a message..." required></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teach Words | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('home') }}">
+          <span class="material-icons">arrow_back</span>
+          Dashboard
+        </a>
+        <h1>Teach Words</h1>
+        <p>Add a word or phrase, review its translation/meaning, then confirm whether it is toxic.</p>
+      </header>
+
+      {% if msg %}
+        <div class="popup error">{{ msg }}</div>
+      {% endif %}
+      {% if success %}
+        <div class="popup success">{{ success }}</div>
+      {% endif %}
+
+      <section class="admin-card">
+        <form class="training-form" method="POST" action="{{ url_for('training') }}">
+          <label for="term">Word or phrase</label>
+          <input id="term" name="term" type="text" value="{{ suggested_term }}" placeholder="Enter new word or phrase" required>
+
+          <label for="translation">Translation</label>
+          <input id="translation" name="translation" type="text" value="{{ suggested_translation }}" placeholder="Auto-filled after lookup when available">
+
+          <label for="meaning">Meaning</label>
+          <textarea id="meaning" name="meaning" placeholder="Auto-filled from online lookup when available">{{ suggested_meaning }}</textarea>
+
+          <label for="label">Correct label</label>
+          <select id="label" name="label">
+            <option value="Toxic">Toxic</option>
+            <option value="Non-Toxic">Non-Toxic</option>
+          </select>
+
+          <div class="training-actions">
+            <button type="submit" name="action" value="lookup" class="secondary-button">
+              <span class="material-icons">travel_explore</span>
+              Lookup meaning
+            </button>
+            <button type="submit" name="action" value="save">
+              <span class="material-icons">save</span>
+              Save training word
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <h2>Current Training Words</h2>
+        <div class="training-table">
+          <div class="table-row table-head">
+            <span>Term</span>
+            <span>Translation</span>
+            <span>Label</span>
+            <span>Meaning</span>
+          </div>
+          {% for term in learned_terms %}
+            <div class="table-row">
+              <span>{{ term.term }}</span>
+              <span>{{ term.translation or '-' }}</span>
+              <span class="label-pill {{ 'toxic' if term.label == 'Toxic' else 'safe' }}">{{ term.label }}</span>
+              <span>{{ term.meaning or '-' }}</span>
+            </div>
+          {% else %}
+            <p>No words have been added yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

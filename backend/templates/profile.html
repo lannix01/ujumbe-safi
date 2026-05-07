@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username if user else 'Profile' }} | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell">
+      <header class="admin-header profile-header">
+        <a class="back-link" href="{{ url_for('home' if session.get('is_admin') else 'user_home') }}">
+          <span class="material-icons">arrow_back</span>
+          Back
+        </a>
+        {% if user %}
+          <section class="profile-cover">
+            <div class="profile-avatar-row">
+              <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              {% if is_own_profile %}
+                <div class="profile-actions">
+                  <a class="small-action" href="{{ url_for('edit_profile') }}">Edit profile</a>
+                </div>
+              {% elif user.id != session.id %}
+                <div class="profile-actions">
+                  <form method="POST" action="{{ url_for('connect_user', user_id=user.id) }}">
+                    <button class="round-icon" type="submit" title="Connect"><span class="material-icons">person_add</span></button>
+                  </form>
+                  <a class="round-icon" href="{{ url_for('messages', user_id=user.id) }}" title="Message"><span class="material-icons">chat</span></a>
+                </div>
+              {% endif %}
+            </div>
+            <h1>{{ user.fullname }}</h1>
+            <p>@{{ user.username }}{% if session.get('is_admin') %} · {{ user.account_status or 'Active' }} · {{ user.black_label_count or 0 }}/10 labels{% endif %}</p>
+            {% if user.bio %}
+              <p class="profile-bio">{{ user.bio }}</p>
+            {% endif %}
+            <div class="profile-stats">
+              <span><i class="material-icons">article</i><strong>{{ stats.post_count or 0 }}</strong> Posts</span>
+              <span><i class="material-icons">group</i><strong>{{ stats.connection_count or 0 }}</strong> Connections</span>
+              <span><i class="material-icons">person_add</i><strong>{{ stats.request_count or 0 }}</strong> Requests</span>
+              <span><i class="material-icons">favorite</i><strong>{{ stats.like_count or 0 }}</strong> Likes</span>
+              <span><i class="material-icons">mode_comment</i><strong>{{ stats.comment_count or 0 }}</strong> Comments</span>
+              <span><i class="material-icons">repeat</i><strong>{{ stats.repost_count or 0 }}</strong> Reshares</span>
+            </div>
+          </section>
+        {% else %}
+          <h1>Profile not found</h1>
+        {% endif %}
+      </header>
+
+      {% set show_moderation = show_moderation %}
+      {% set is_own_profile = is_own_profile %}
+      {% include 'posts.html' %}
+    </main>
+  </body>
+</html>

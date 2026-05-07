@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Posts Audit | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('home') }}">
+          <span class="material-icons">arrow_back</span>
+          Admin
+        </a>
+        <h1>All Posts Audit</h1>
+        <p>Every post attempt is shown here, including approved and rejected content.</p>
+      </header>
+
+      {% set show_moderation = true %}
+      {% include 'posts.html' %}
+    </main>
+  </body>
+</html>

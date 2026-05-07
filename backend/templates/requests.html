@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('user_home') }}"><span class="material-icons">arrow_back</span>Home</a>
+        <h1>Connections</h1>
+      </header>
+
+      <nav class="segmented-tabs">
+        <a class="{{ 'active' if tab == 'requests' else '' }}" href="{{ url_for('requests_page', tab='requests') }}">Requests</a>
+        <a class="{{ 'active' if tab == 'friends' else '' }}" href="{{ url_for('requests_page', tab='friends') }}">Friends</a>
+      </nav>
+
+      <section class="admin-card">
+        <div class="card-title-row">
+          <h2>{% if tab == 'friends' %}Friends{% else %}Requests{% endif %}</h2>
+          <details class="plus-search">
+            <summary><span class="material-icons">add</span></summary>
+            <form class="search-form" method="GET">
+              <input type="hidden" name="tab" value="{{ tab }}">
+              <input type="text" name="q" value="{{ query }}" placeholder="Search username or name">
+              <button type="submit"><span class="material-icons">search</span></button>
+            </form>
+          </details>
+        </div>
+
+        {% if searched %}
+          {% for user in search_results %}
+            <div class="request-row">
+              <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <a href="{{ url_for('profile', user_id=user.id) }}">@{{ user.username }}</a>
+              <form method="POST" action="{{ url_for('connect_user', user_id=user.id) }}">
+                <button class="round-icon" type="submit"><span class="material-icons">person_add</span></button>
+              </form>
+            </div>
+          {% else %}
+            <p>No users found.</p>
+          {% endfor %}
+        {% endif %}
+
+        {% if tab == 'friends' %}
+          {% for user in connected_users %}
+            <div class="request-row">
+              <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <a href="{{ url_for('profile', user_id=user.id) }}">@{{ user.username }}</a>
+              <form method="POST" action="{{ url_for('disconnect_user', user_id=user.id) }}">
+                <button class="round-icon" type="submit" title="Disconnect"><span class="material-icons">person_remove</span></button>
+              </form>
+            </div>
+          {% else %}
+            {% if not searched %}<p>No friends yet.</p>{% endif %}
+          {% endfor %}
+        {% else %}
+          {% for request in connection_requests %}
+            <div class="request-row">
+              <img src="{% if request.profile_pic %}{{ url_for('static', filename='uploads/' + request.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <a href="{{ url_for('profile', user_id=request.requester_id) }}">@{{ request.username }}</a>
+              <form method="POST" action="{{ url_for('manage_connection', connection_id=request.id, action='accept') }}">
+                <button class="round-icon" type="submit"><span class="material-icons">check</span></button>
+              </form>
+            </div>
+          {% else %}
+            {% if not searched %}<p>No incoming requests.</p>{% endif %}
+          {% endfor %}
+
+          {% if sent_requests %}
+            <h3 class="subsection-title">Sent</h3>
+            {% for request in sent_requests %}
+              <div class="request-row">
+                <img src="{% if request.profile_pic %}{{ url_for('static', filename='uploads/' + request.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+                <span>@{{ request.username }}</span>
+                <small>Pending</small>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

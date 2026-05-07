@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('my_profile') }}">
+          <span class="material-icons">arrow_back</span>
+          Profile
+        </a>
+        <h1>Edit Profile</h1>
+      </header>
+
+      <section class="admin-card">
+        <form class="training-form" method="POST" enctype="multipart/form-data">
+          <label for="fullname">Name</label>
+          <input id="fullname" name="fullname" type="text" value="{{ user.fullname }}" required>
+
+          <label for="bio">Bio</label>
+          <textarea id="bio" name="bio" maxlength="280" placeholder="Tell people about yourself">{{ user.bio or '' }}</textarea>
+
+          <label for="profile_pic">Profile image</label>
+          <input id="profile_pic" name="profile_pic" type="file" accept="image/*">
+
+          <div class="training-actions">
+            <button type="submit">
+              <span class="material-icons">save</span>
+              Save profile
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

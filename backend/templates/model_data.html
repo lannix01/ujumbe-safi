@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Data | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('home') }}">
+          <span class="material-icons">arrow_back</span>
+          Dashboard
+        </a>
+        <h1>Model Data</h1>
+        <p>These are the saved model signals and the user-confirmed words the app checks first.</p>
+      </header>
+
+      {% if model_data.error %}
+        <div class="popup error">{{ model_data.error }}</div>
+      {% endif %}
+
+      <section class="admin-grid">
+        <div class="admin-card">
+          <p class="eyebrow">Saved vectorizer</p>
+          <h2>{{ model_data.vocabulary_size }}</h2>
+          <p>Known words and phrases in the trained TF-IDF vocabulary.</p>
+        </div>
+        <div class="admin-card">
+          <p class="eyebrow">Learned terms</p>
+          <h2>{{ learned_terms|length }}</h2>
+          <p>User-confirmed labels that override the model when matched.</p>
+        </div>
+      </section>
+
+      <section class="term-columns">
+        <div class="admin-card">
+          <h2>Top Toxic Signals</h2>
+          <div class="term-list">
+            {% for term, score in model_data.top_toxic %}
+              <span>{{ term }}</span>
+            {% else %}
+              <p>No model terms available.</p>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="admin-card">
+          <h2>Top Non-Toxic Signals</h2>
+          <div class="term-list safe">
+            {% for term, score in model_data.top_safe %}
+              <span>{{ term }}</span>
+            {% else %}
+              <p>No model terms available.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <div class="section-title">
+          <h2>Confirmed Training Words</h2>
+          <a class="small-action" href="{{ url_for('training') }}">Add word</a>
+        </div>
+        <div class="training-table">
+          <div class="table-row table-head">
+            <span>Term</span>
+            <span>Translation</span>
+            <span>Label</span>
+            <span>Meaning</span>
+          </div>
+          {% for term in learned_terms %}
+            <div class="table-row">
+              <span>{{ term.term }}</span>
+              <span>{{ term.translation or '-' }}</span>
+              <span class="label-pill {{ 'toxic' if term.label == 'Toxic' else 'safe' }}">{{ term.label }}</span>
+              <span>{{ term.meaning or '-' }}</span>
+            </div>
+          {% else %}
+            <p>No confirmed words yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

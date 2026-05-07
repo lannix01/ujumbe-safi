@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('user_home') }}">
+          <span class="material-icons">arrow_back</span>
+          Home
+        </a>
+        <h1>Create Post</h1>
+      </header>
+
+      <section class="tweetBox compose-panel">
+        <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
+          <div class="tweetbox__input">
+            <img src="{% if pic %}{{ url_for('static', filename='uploads/' + pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+            <textarea id="tweet" name="tweet" maxlength="280" placeholder="What's happening? Use @username to tag someone." required></textarea>
+          </div>
+          <div class="composer-actions">
+            <label class="upload-control">
+              <span class="material-icons">image</span>
+              <input type="file" name="post_pic" accept="image/*">
+            </label>
+            <select class="audience-select" name="audience">
+              <option value="Public">Public</option>
+              <option value="Friends">Connected friends</option>
+              <option value="Only Me">Me only</option>
+            </select>
+            <button type="submit" class="tweetBox__tweetButton">Create post</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

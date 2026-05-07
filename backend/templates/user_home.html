@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="app-logo" href="{{ url_for('user_home') }}">
+        <span class="material-icons">verified_user</span>
+        <strong>Ujumbe Safi</strong>
+      </a>
+      <a class="sidebarOption active" href="{{ url_for('user_home') }}">
+        <span class="material-icons">home</span>
+        <h2>Home</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('manual_test') }}">
+        <span class="material-icons">manage_search</span>
+        <h2>Check Toxicity</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('my_profile') }}">
+        <span class="material-icons">person</span>
+        <h2>Profile</h2>
+      </a>
+      <button class="sidebar__tweet" onclick="window.location.href='{{ url_for('compose') }}'">Post</button>
+    </aside>
+
+    <main class="feed">
+      <section class="feed__header">
+        <div>
+          <p class="eyebrow">Home</p>
+          <h1>Feed</h1>
+        </div>
+        <div class="header-actions">
+          <a class="avatar-action" href="{{ url_for('requests_page') }}" title="Find people and requests">
+            <span class="material-icons">person_add</span>
+            {% if connection_requests|length %}
+              <small>{{ connection_requests|length }}</small>
+            {% endif %}
+          </a>
+          <a class="avatar-action" href="{{ url_for('messages_home') }}" title="Start or open messages">
+            <span class="material-icons">chat</span>
+            {% if connected_users|length %}
+              <small>{{ connected_users|length }}</small>
+            {% endif %}
+          </a>
+          <a href="{{ url_for('profile', user_id=session['id']) }}">
+            <img src="{% if pic %}{{ url_for('static', filename='uploads/' + pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+          </a>
+        </div>
+      </section>
+
+      <section class="tweetBox">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="popup {{ 'success' if message.startswith('Tweet posted successfully') or message.startswith('Connection') else 'error' }}">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <a class="compact-compose" href="{{ url_for('compose') }}">
+          <div class="tweetbox__input compact-input">
+            <img src="{% if pic %}{{ url_for('static', filename='uploads/' + pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+            <span>What's happening?</span>
+            <b>Create post</b>
+          </div>
+        </a>
+      </section>
+
+      {% set show_moderation = false %}
+      {% include 'posts.html' %}
+    </main>
+
+    <aside class="widgets">
+      <section class="quick-check user-cards">
+        <p class="eyebrow">Recommended users</p>
+        <div class="scroll-cards">
+          {% for user in recommended_users %}
+            <div class="user-card">
+              <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <strong>{{ user.fullname }}</strong>
+              <span>@{{ user.username }}</span>
+              {% if user.connection_status %}
+                <small>{{ user.connection_status }}</small>
+              {% else %}
+                <form method="POST" action="{{ url_for('connect_user', user_id=user.id) }}">
+                  <button type="submit">Connect</button>
+                </form>
+              {% endif %}
+            </div>
+          {% else %}
+            <p>No recommendations yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </body>
+</html>

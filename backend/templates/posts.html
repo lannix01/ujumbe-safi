@@ -1,33 +1,88 @@
-<!-- Inside your HTML template -->
 <div class="posts">
-  {% for post in posts %}
-    <!-- post starts -->
+  {% for post in posts or [] %}
     <div class="post">
       <div class="post__avatar">
-        <img src="{{ url_for('static', filename='uploads/' + post['profile_pic']) }}" alt="Profile Picture">
+        <img src="{% if post['profile_pic'] %}{{ url_for('static', filename='uploads/' + post['profile_pic']) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
       </div>
       <div class="post__body">
+        {% if is_own_profile %}
+          <details class="post-menu">
+            <summary><span class="material-icons">more_horiz</span></summary>
+            <div class="post-menu__content">
+              <form method="POST" action="{{ url_for('manage_own_post', post_id=post['id']) }}">
+                <input type="hidden" name="action" value="visibility">
+                <select name="audience">
+                  <option value="Public" {% if post.get('audience', 'Public') == 'Public' %}selected{% endif %}>Public</option>
+                  <option value="Friends" {% if post.get('audience') == 'Friends' %}selected{% endif %}>Connected friends</option>
+                  <option value="Only Me" {% if post.get('audience') == 'Only Me' %}selected{% endif %}>Me only</option>
+                </select>
+                <button type="submit">Change</button>
+              </form>
+              <form method="POST" action="{{ url_for('manage_own_post', post_id=post['id']) }}">
+                <button type="submit" name="action" value="{% if post.get('comments_enabled', 1) %}close-comments{% else %}open-comments{% endif %}">
+                  {% if post.get('comments_enabled', 1) %}Block comments{% else %}Allow comments{% endif %}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('manage_own_post', post_id=post['id']) }}">
+                <button type="submit" name="action" value="delete">Delete</button>
+              </form>
+            </div>
+          </details>
+        {% endif %}
         <div class="post__header">
           <div class="post__headerText">
             <h3>
               {{ post['fullname'] }}
-                <span class="post__headerSpecial"><span class="material-icons post__badge"> verified </span>{{ post['username'] }}</span>
+                <a class="post__headerSpecial" href="{{ url_for('profile', user_id=post['user_id']) }}"><span class="material-icons post__badge"> verified </span>{{ post['username'] }}</a>
             </h3>
+            {% if show_moderation %}
+              <div class="moderation-labels">
+                <span class="label-pill {{ 'toxic' if post.get('toxicity_label') == 'Toxic' else 'safe' }}">
+                  {{ post.get('toxicity_label', 'Non-Toxic') }}
+                </span>
+                <span class="label-pill {{ 'rejected' if post.get('moderation_status') == 'Rejected' else 'approved' }}">
+                  {{ post.get('moderation_status', 'Approved') }}
+                </span>
+              </div>
+            {% endif %}
           </div>
           <div class="post__headerDescription">
-            <p>{{ post['tweet'] }}</p>
+            <a class="post-focus-link" href="{{ url_for('focused_post', post_id=post['id']) }}">{{ post['tweet'] }}</a>
+            {% if show_moderation and post.get('moderation_reason') %}
+              <p class="moderation-reason">{{ post.get('moderation_reason') }}</p>
+            {% endif %}
           </div>
         </div>
         {% if post['post_pic'] %}
         <img src="{{ url_for('static', filename='uploads/' + post['post_pic']) }}" alt="Profile Picture">
         {% endif %}
         <div class="post__footer">
-          <span class="material-icons"> repeat </span>
-          <span class="material-icons"> favorite_border </span>
+          <form method="POST" action="{{ url_for('repost', post_id=post['id']) }}">
+            <button class="icon-action" type="submit"><span class="material-icons"> repeat </span><small>{{ post.get('repost_count', 0) }}</small></button>
+          </form>
+          <a class="icon-action {% if not post.get('comments_enabled', 1) %}disabled-action{% endif %}" href="{{ url_for('focused_post', post_id=post['id']) }}">
+            <span class="material-icons"> mode_comment </span><small>{{ post.get('comment_count', 0) }}</small>
+          </a>
+          <form method="POST" action="{{ url_for('like_post', post_id=post['id']) }}">
+            <button class="icon-action" type="submit"><span class="material-icons"> favorite_border </span><small>{{ post.get('like_count', 0) }}</small></button>
+          </form>
           <span class="material-icons"> publish </span>
         </div>
+        {% if show_moderation %}
+          <div class="admin-actions post-admin-actions">
+            <form method="POST" action="{{ url_for('admin_post_action', post_id=post['id'], action='approve') }}"><button type="submit">Approve</button></form>
+            <form method="POST" action="{{ url_for('admin_post_action', post_id=post['id'], action='reject') }}"><button type="submit">Reject</button></form>
+            <form method="POST" action="{{ url_for('admin_post_action', post_id=post['id'], action='black-label') }}"><button type="submit">Black label user</button></form>
+            <form method="POST" action="{{ url_for('admin_post_action', post_id=post['id'], action='delete') }}"><button type="submit">Delete</button></form>
+          </div>
+        {% endif %}
       </div>
     </div>
-    <!-- post ends -->
+  {% else %}
+    <div class="empty-posts">
+      <span class="material-icons">forum</span>
+      <h2>No clean posts yet</h2>
+      <p>Write the first message and Ujumbe Safi will screen it before publishing.</p>
+    </div>
   {% endfor %}
 </div>

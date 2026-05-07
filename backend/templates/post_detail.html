@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('home' if session.get('is_admin') else 'user_home') }}">
+          <span class="material-icons">arrow_back</span>
+          Back
+        </a>
+        <h1>Post</h1>
+      </header>
+
+      {% if post %}
+        {% set posts = [post] %}
+        {% include 'posts.html' %}
+
+        <section class="admin-card comments-panel">
+          <h2>Comments</h2>
+          {% if not show_moderation and post.get('comments_enabled', 1) %}
+            <form class="comment-form detail-comment-form" method="POST" action="{{ url_for('comment_post', post_id=post['id']) }}">
+              <input type="text" name="comment" placeholder="Write a comment..." required>
+              <button type="submit">Comment</button>
+            </form>
+          {% elif not show_moderation %}
+            <p>Comments are closed for this post.</p>
+          {% endif %}
+          {% for comment in comments %}
+            <div class="comment-row">
+              <img src="{% if comment.profile_pic %}{{ url_for('static', filename='uploads/' + comment.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <div>
+                <strong>{{ comment.fullname }} <span>@{{ comment.username }}</span></strong>
+                <p>{{ comment.comment }}</p>
+                {% if show_moderation %}
+                  <small>{{ comment.toxicity_label }} · {{ comment.moderation_status }}</small>
+                {% endif %}
+              </div>
+            </div>
+          {% else %}
+            <p>No comments yet.</p>
+          {% endfor %}
+        </section>
+      {% else %}
+        <section class="admin-card">
+          <p>Post not found.</p>
+        </section>
+      {% endif %}
+    </main>
+  </body>
+</html>

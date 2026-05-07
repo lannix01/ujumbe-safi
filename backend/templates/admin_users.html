@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('home') }}">
+          <span class="material-icons">arrow_back</span>
+          Admin
+        </a>
+        <h1>Accounts</h1>
+        <p>Manage users, posting access, black labels, and Black Book status.</p>
+      </header>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="popup success">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <section class="admin-card">
+        <div class="training-table">
+          <div class="table-row users-row table-head">
+            <span>User</span>
+            <span>Email</span>
+            <span>Status</span>
+            <span>Labels</span>
+            <span>Actions</span>
+          </div>
+          {% for user in users %}
+            <div class="table-row users-row">
+              <span>
+                <strong>{{ user.fullname }}</strong><br>
+                @{{ user.username }}
+              </span>
+              <span>{{ user.email or '-' }}</span>
+              <span>
+                {{ user.account_status }}<br>
+                {% if user.can_post %}Can post{% else %}Posting revoked{% endif %}
+              </span>
+              <span>{{ user.black_label_count }}/10</span>
+              <span class="admin-actions">
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='disable') }}"><button type="submit">Disable</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='enable') }}"><button type="submit">Enable</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='revoke-posting') }}"><button type="submit">Revoke posting</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='allow-posting') }}"><button type="submit">Allow posting</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='black-book') }}"><button type="submit">Black Book</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='clear-labels') }}"><button type="submit">Clear labels</button></form>
+                <form method="POST" action="{{ url_for('admin_user_action', user_id=user.id, action='delete') }}"><button type="submit">Delete</button></form>
+                <a class="small-action" href="{{ url_for('profile', user_id=user.id) }}">Profile</a>
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

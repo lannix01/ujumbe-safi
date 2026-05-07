@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | Ujumbe Safi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="single-page">
+    <main class="admin-shell message-shell">
+      <header class="admin-header">
+        <a class="back-link" href="{{ url_for('user_home') }}"><span class="material-icons">arrow_back</span>Home</a>
+        <h1>Messages</h1>
+      </header>
+
+      <section class="admin-card">
+        <div class="card-title-row">
+          <h2>Chats</h2>
+          <details class="plus-search">
+            <summary><span class="material-icons">add</span></summary>
+            <form class="search-form" method="GET">
+              <input type="text" name="q" value="{{ query }}" placeholder="Search username to start chat">
+              <button type="submit"><span class="material-icons">search</span></button>
+            </form>
+          </details>
+        </div>
+        {% if searched %}
+          {% for user in search_results %}
+            <a class="message-link message-avatar-link" href="{{ url_for('messages', user_id=user.id) }}">
+              <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+              <span>@{{ user.username }}</span>
+              <span class="material-icons">chat</span>
+            </a>
+          {% else %}
+            <p>No users found.</p>
+          {% endfor %}
+        {% endif %}
+      </section>
+
+        {% for user in connected_users %}
+          <a class="message-link message-avatar-link" href="{{ url_for('messages', user_id=user.id) }}">
+            <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/' + user.profile_pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+            <span>@{{ user.username }}</span>
+            <span class="material-icons">chat</span>
+          </a>
+        {% else %}
+          {% if not searched %}<p>No chats yet.</p>{% endif %}
+        {% endfor %}
+      </section>
+    </main>
+  </body>
+</html>

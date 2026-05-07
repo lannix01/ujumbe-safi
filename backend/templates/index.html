@@ -4,174 +4,110 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ujumbe HOME</title>
+    <title>Ujumbe Safi Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
-      crossorigin="anonymous"
-    />
     <script>
-              setTimeout(function() {
-            document.querySelectorAll('.popup').forEach(function(popup) {
-                popup.style.display = 'none';
-            });
-        }, 10000);
-  </script>
+      setTimeout(function() {
+        document.querySelectorAll('.popup').forEach(function(popup) {
+          popup.style.display = 'none';
+        });
+      }, 10000);
+    </script>
   </head>
   <body>
-    <!-- sidebar starts -->
-    <div class="sidebar">
-      <i class="fab fa-twitter"></i>
-      <div class="sidebarOption active">
-        <span class="material-icons"> home </span>
-        <h2>Home</h2>
-      </div>
+    <aside class="sidebar">
+      <a class="app-logo" href="{{ url_for('home') }}">
+        <span class="material-icons">verified_user</span>
+        <strong>Ujumbe Safi</strong>
+      </a>
 
-      <div class="sidebarOption">
-        <span class="material-icons"> search </span>
-        <h2>Explore</h2>
-      </div>
+      <a class="sidebarOption active" href="{{ url_for('home') }}">
+        <span class="material-icons">dashboard</span>
+        <h2>Dashboard</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('manual_test') }}">
+        <span class="material-icons">manage_search</span>
+        <h2>Phrase Check</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('admin_posts') }}">
+        <span class="material-icons">forum</span>
+        <h2>All Posts Audit</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('admin_users') }}">
+        <span class="material-icons">admin_panel_settings</span>
+        <h2>Accounts</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('model_data') }}">
+        <span class="material-icons">model_training</span>
+        <h2>Trained Model</h2>
+      </a>
+      <a class="sidebarOption" href="{{ url_for('training') }}">
+        <span class="material-icons">school</span>
+        <h2>Teach Words</h2>
+      </a>
+      <button class="sidebar__tweet" onclick="document.getElementById('tweet').focus()">New Post</button>
+    </aside>
 
-      <div class="sidebarOption">
-        <span class="material-icons"> notifications_none </span>
-        <h2>Notifications</h2>
-      </div>
+    <main class="feed">
+      <section class="feed__header">
+        <div>
+          <p class="eyebrow">Moderation workspace</p>
+          <h1>Clean posts, clearer conversations.</h1>
+        </div>
+        <img src="{% if pic %}{{ url_for('static', filename='uploads/' + pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
+      </section>
 
-      <div class="sidebarOption">
-        <span class="material-icons"> mail_outline </span>
-        <h2>Messages</h2>
-      </div>
-
-      <div class="sidebarOption">
-        <span class="material-icons"> bookmark_border </span>
-        <h2>Bookmarks</h2>
-      </div>
-
-      <div class="sidebarOption">
-        <span class="material-icons"> list_alt </span>
-        <h2>Lists</h2>
-      </div>
-
-      <div class="sidebarOption">
-        <span class="material-icons"> perm_identity </span>
-        <h2>Profile</h2>
-      </div>
-
-      <div class="sidebarOption">
-        <span class="material-icons"> more_horiz </span>
-        <h2>More</h2>
-      </div>
-      <button class="sidebar__tweet" onclick="window.location.href='/redirect_to_posts'">Tweet</button>
-    </div>
-    <!-- sidebar ends -->
-
-    <!-- feed starts -->
-    <div class="feed">
-      <div class="feed__header">
-        <h2>Home</h2>
-      </div>
-      <!-- tweetbox starts -->
-      <div class="tweetBox">
+      <section class="tweetBox">
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
+          {% if messages %}
             {% for message in messages %}
-                <div class="popup {{ 'success' if message.startswith('Tweet posted successfully') else 'error' }}">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                    {{ message }}
-                </div>
+              <div class="popup {{ 'success' if message.startswith('Tweet posted successfully') else 'error' }}">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                {{ message }}
+              </div>
             {% endfor %}
-        {% endif %}
-    {% endwith %}
+          {% endif %}
+        {% endwith %}
+
         <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
-          <h2>Post tweets</h2>
-          <div class="tweetbox__input">  
+          <div class="composer-title">
+            <div>
+              <p class="eyebrow">Screened composer</p>
+              <h2>Write a post</h2>
+            </div>
+            <span class="status-pill">Model active</span>
+          </div>
+          <div class="tweetbox__input">
             <img src="{% if pic %}{{ url_for('static', filename='uploads/' + pic) }}{% else %}{{ url_for('static', filename='images/profile.png') }}{% endif %}" alt="Profile Picture">
-          <input type="text" name="tweet" placeholder="What's happening?"/> 
-          </div>         
-          <input type="file" name="post_pic" accept="image/*" required placeholder="Upload Image">
-          <button type="submit" class="tweetBox__tweetButton">Tweet</button>
-      </form>           
-      </div>
-      <!-- tweetbox ends -->
+            <textarea id="tweet" name="tweet" maxlength="280" placeholder="Write a message to classify before publishing..." required></textarea>
+          </div>
+          <div class="composer-actions">
+            <label class="upload-control">
+              <span class="material-icons">image</span>
+              <input type="file" name="post_pic" accept="image/*">
+            </label>
+            <button type="submit" class="tweetBox__tweetButton">Analyze and Post</button>
+          </div>
+        </form>
+      </section>
 
-      <!-- post starts -->
-      {% include 'posts.html' %}
-      <!-- <button class="sidebar__tweet" onclick="redirectToPosts()">Tweet</button> -->
-      <!-- post ends -->
-    </div>
-    <!-- feed ends -->
+      <section id="posts">
+        {% set show_moderation = false %}
+        {% include 'posts.html' %}
+      </section>
+    </main>
 
-    <!-- widgets starts -->
-    <div class="widgets">
-      <div class="widgets__input">
-        <span class="material-icons widgets__searchIcon"> search </span>
-        <input type="text" placeholder="Search Twitter" />
-      </div>
-
-      <div class="widgets__widgetContainer">
-        <h2>What's happening?</h2>
-        <blockquote class="twitter-tweet">
-          <p lang="en" dir="ltr">
-            Sunsets don&#39;t get much better than this one over
-            <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>.
-            <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw"
-              >#nature</a
-            >
-            <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw"
-              >#sunset</a
-            >
-            <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a>
-          </p>
-          &mdash; US Department of the Interior (@Interior)
-          <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw"
-            >May 5, 2014</a
-          >
-        </blockquote>
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-      </div>
-    </div>
-    <script>
-      function redirectToPosts() {
-          fetch('/redirect_to_posts')
-              .then(response => response.json())
-              .then(data => {
-                  // Clear existing posts
-                  document.querySelector('.posts').innerHTML = '';
-  
-                  // Append new posts to the .posts element
-                  data.posts.forEach(post => {
-                      const postElement = document.createElement('div');
-                      postElement.className = 'post';
-                      postElement.innerHTML = `
-                          <div class="post__avatar">
-                              <img src="/static/uploads/${post.profile_pic}" alt="Profile Picture">
-                          </div>
-                          <div class="post__body">
-                              <div class="post__header">
-                                  <div class="post__headerText">
-                                      <h3>${post.fullname}</h3>
-                                  </div>
-                                  <div class="post__headerDescription">
-                                      <p>${post.tweet}</p>
-                                  </div>
-                              </div>
-                              ${post.post_pic ? `<img src="/static/uploads/${post.post_pic}" alt="Post Picture">` : ''}
-                              <div class="post__footer">
-                                  <span class="material-icons"> repeat </span>
-                                  <span class="material-icons"> favorite_border </span>
-                                  <span class="material-icons"> publish </span>
-                              </div>
-                          </div>
-                      `;
-                      document.querySelector('.posts').appendChild(postElement);
-                  });
-              })
-              .catch(error => console.error('Error:', error));
-      }
-  </script>
-    <!-- widgets ends -->
+    <aside class="widgets">
+      <form class="quick-check" method="POST" action="{{ url_for('manual_test') }}">
+        <p class="eyebrow">Quick toxicity check</p>
+        <h2>Search a word or phrase</h2>
+        <textarea name="text_input" placeholder="Type a word, phrase, or sentence..." required></textarea>
+        <button type="submit">
+          <span class="material-icons">manage_search</span>
+          Check toxicity
+        </button>
+      </form>
+    </aside>
   </body>
 </html>
