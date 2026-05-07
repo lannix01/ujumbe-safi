@@ -1,213 +1,225 @@
-# Ujumbe_safi_hate_speech_DS
-# Ujumbe Model 
-This is a model that is used to predict the sentiment of a given text.
+# Ujumbe Safi
+
+Ujumbe Safi is a social media and content moderation system built with Flask, MySQL, and a trained toxicity detection model. It combines posting, profiles, connections, messages, comments, reactions, admin moderation, and toxicity checks for posts, comments, and chats.
+
+The project uses a saved TF-IDF vectorizer and toxicity classifier from the training notebooks, then adds a live moderation layer where admins can teach new toxic or non-toxic words/phrases.
+
+## Repository
+
+```bash
+git clone https://github.com/lannix01/ujumbe-safi.git
+cd ujumbe-safi
+```
+
+## Main Features
+
+- User registration and login
+- Password reset by username and email
+- User feed with mixed public, connected-friends, and interacted-with posts
+- Create posts with audience controls:
+  - Public
+  - Connected friends
+  - Me only
+- Toxicity screening for posts, comments, direct messages, and manual phrase checks
+- Likes, comments, reposts/reshares, and focused post pages
+- User profiles with bio, profile image, stats, and post management
+- Connections/friends system with requests and disconnect controls
+- Direct messages with toxicity filtering before delivery
+- Admin dashboard for full moderation audit
+- Admin account management:
+  - disable/enable accounts
+  - revoke/allow posting
+  - black-label users
+  - move users to Black Book
+  - delete accounts
+- Admin model tools:
+  - view model vocabulary/signals
+  - teach new words or phrases
+
 ## Project Structure
-cisco@labvm:~/Desktop/Ujumbe_safi_hate_speech_DS$ tree
-.
-├── backend
-│   ├── api.py
-│   ├── app.py
-│   ├── database.sql
-│   ├── images
-│   ├── __pycache__
-│   │   └── test.cpython-38.pyc
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── static
-│   │   ├── css
-│   │   │   ├── login.css
-│   │   │   ├── styles.css
-│   │   │   └── teststyles.css
-│   │   ├── images
-│   │   │   ├── bg.png
-│   │   │   ├── blurry-twitter-image.jpeg
-│   │   │   ├── car.jpg
-│   │   │   ├── fonta.png
-│   │   │   ├── fontb.png
-│   │   │   └── profile.png
-│   │   ├── js
-│   │   │   └── testscript.js
-│   │   └── uploads
-│   │       ├── car.jpg
-│   │       ├── fontb.png
-│   │       ├── img.png
-│   │       ├── keyboard.jpg
-│   │       ├── profile.png
-│   │       ├── rcom.png
-│   │       ├── search.png
-│   │       └── student_f.png
-│   ├── templates
-│   │   ├── analyse.html
-│   │   ├── bootstrap.html
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── posts.html
-│   │   ├── register.html
-│   │   ├── test.html
-│   │   └── testpage.html
-│   ├── tf_idf.pkt
-│   └── toxicity_model.pkt
-├── datasets
-│   ├── hate1.csv
-│   ├── hate.csv
-│   └── hate_tweets.csv
-├── frontend
-│   ├── about
-│   │   ├── index.html
-│   │   ├── slider.js
-│   │   └── style.css
-│   ├── html css website
-│   │   ├── images
-│   │   │   ├── about.jpeg
-│   │   │   ├── icon-1.svg
-│   │   │   ├── icon-2.svg
-│   │   │   ├── icon-3.svg
-│   │   │   ├── icon-4.svg
-│   │   │   ├── icon-5.svg
-│   │   │   ├── icon-6.svg
-│   │   │   ├── portfolio-1.jpg
-│   │   │   ├── portfolio-2.jpg
-│   │   │   ├── portfolio-3.jpg
-│   │   │   ├── portfolio-4.jpg
-│   │   │   ├── portfolio-5.jpg
-│   │   │   └── portfolio-6.jpg
-│   │   ├── index.html
-│   │   ├── script.js
-│   │   └── style.css
-│   ├── images
-│   │   ├── car.jpg
-│   │   └── profile.png
-│   ├── index.html
-│   ├── styles.css
-│   └── test-page
-│       ├── bg.png
-│       ├── blurry-twitter-image.jpeg
-│       ├── fonta.png
-│       ├── fontb.png
-│       ├── testpage.html
-│       ├── testscript.js
-│       └── teststyles.css
-├── notebooks
-│   ├── clean.ipynb
-│   ├── model_train.ipynb
-│   └── Toxicity_Classifier.ipynb
-└── README.md
 
-17 directories, 71 files
-cisco@labvm:~/Desktop/Ujumbe_safi_hate_speech_DS$ tree 
-.
-├── backend
-│   ├── api.py
-│   ├── app.py
-│   ├── database.sql
-│   ├── images
-│   ├── __pycache__
-│   │   └── test.cpython-38.pyc
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── static
-│   │   ├── css
-│   │   │   ├── login.css
-│   │   │   ├── styles.css
-│   │   │   └── teststyles.css
-│   │   ├── images
-│   │   │   ├── bg.png
-│   │   │   ├── blurry-twitter-image.jpeg
-│   │   │   ├── car.jpg
-│   │   │   ├── fonta.png
-│   │   │   ├── fontb.png
-│   │   │   └── profile.png
-│   │   ├── js
-│   │   │   └── testscript.js
-│   │   └── uploads
-│   │       ├── car.jpg
-│   │       ├── fontb.png
-│   │       ├── img.png
-│   │       ├── keyboard.jpg
-│   │       ├── profile.png
-│   │       ├── rcom.png
-│   │       ├── search.png
-│   │       └── student_f.png
-│   ├── templates
-│   │   ├── analyse.html
-│   │   ├── bootstrap.html
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── posts.html
-│   │   ├── register.html
-│   │   ├── test.html
-│   │   └── testpage.html
-│   ├── tf_idf.pkt
-│   └── toxicity_model.pkt
-├── datasets
-│   ├── hate1.csv
-│   ├── hate.csv
-│   └── hate_tweets.csv
-├── frontend
-│   ├── about
-│   │   ├── index.html
-│   │   ├── slider.js
-│   │   └── style.css
-│   ├── html css website
-│   │   ├── images
-│   │   │   ├── about.jpeg
-│   │   │   ├── icon-1.svg
-│   │   │   ├── icon-2.svg
-│   │   │   ├── icon-3.svg
-│   │   │   ├── icon-4.svg
-│   │   │   ├── icon-5.svg
-│   │   │   ├── icon-6.svg
-│   │   │   ├── portfolio-1.jpg
-│   │   │   ├── portfolio-2.jpg
-│   │   │   ├── portfolio-3.jpg
-│   │   │   ├── portfolio-4.jpg
-│   │   │   ├── portfolio-5.jpg
-│   │   │   └── portfolio-6.jpg
-│   │   ├── index.html
-│   │   ├── script.js
-│   │   └── style.css
-│   ├── images
-│   │   ├── car.jpg
-│   │   └── profile.png
-│   ├── index.html
-│   ├── styles.css
-│   └── test-page
-│       ├── bg.png
-│       ├── blurry-twitter-image.jpeg
-│       ├── fonta.png
-│       ├── fontb.png
-│       ├── testpage.html
-│       ├── testscript.js
-│       └── teststyles.css
-├── notebooks
-│   ├── clean.ipynb
-│   ├── model_train.ipynb
-│   └── Toxicity_Classifier.ipynb
-└── README.md
+```text
+backend/
+  app.py                 Flask application
+  api.py                 FastAPI prediction endpoint
+  database.sql           MySQL schema
+  requirements.txt       Python dependencies
+  tf_idf.pkt             Saved TF-IDF vectorizer
+  toxicity_model.pkt     Saved toxicity model
+  templates/             Flask/Jinja pages
+  static/                CSS, JS, images, uploads
 
-17 directories, 71 files
-### Backend Folder
-This folder holds the backend code for the application.
-Hosts the model and the API.
+datasets/                Training datasets
+notebooks/               Data cleaning and model training notebooks
+frontend/                Older/static frontend experiments
+```
 
-### Frontend Folder
-This folder holds the frontend code for the application.
+The active integrated app is in `backend/`.
 
-Hosts the UI.
-### Dataset Folder
-This folder holds the dataset used for the application and Trainig the model
-### Notebooks
-This folder holds the notebooks used for the application. Contains code used to trained the model.
-Kindly test the notebooks with google coolab
-### However all these are intergrated inside backend folder hence touch backend folder with caution.
-## Installation
-1. git clone https://github.com/Neivanny1/Ujumbe_safi_hate_speech_DS.git
-2. cd Ujumbe_safi_hate_speech_DS
-3. python3 -m venv env
-4. source env/bin/activate
-5. cd backend
-6. pip install -r requirements.txt
-7. python3 app.py
-8. Go to web browser and type localhost:5000
+## Requirements
 
-## DEMO
+- Python 3.10+
+- MySQL or MariaDB
+- Git
+
+Python packages are listed in:
+
+```text
+backend/requirements.txt
+```
+
+## Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/lannix01/ujumbe-safi.git
+cd ujumbe-safi
+```
+
+### 2. Create a virtual environment
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Linux/macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+### 4. Create the database
+
+Log into MySQL and run the schema:
+
+```bash
+mysql -u root -p < database.sql
+```
+
+The app expects:
+
+```text
+Database: twitter
+User: crud
+Password: empty
+Host: localhost
+```
+
+These settings are currently configured in `backend/app.py`.
+
+### 5. Run the Flask app
+
+From inside the `backend/` folder:
+
+```bash
+python app.py
+```
+
+Open:
+
+```text
+http://localhost:5000
+```
+
+## Admin Access
+
+The app treats an account as admin if:
+
+- `is_admin = 1`, or
+- the account id is `1`, or
+- the username is `admin`
+
+After creating your first account, you can promote it in MySQL:
+
+```sql
+UPDATE accounts SET is_admin = 1 WHERE username = 'your_username';
+```
+
+Admins are sent to:
+
+```text
+/home/
+```
+
+Normal users are sent to:
+
+```text
+/user/
+```
+
+## Important Routes
+
+```text
+/                       Login
+/register/              Register
+/reset-password/        Reset password
+/user/                  Normal user feed
+/compose                Create post
+/profile                Own profile
+/profile/<id>           User profile
+/post/<id>              Focused post and comments
+/requests               Connections and requests
+/messages               Messages hub
+/messages/<id>          Chat thread
+/manual                 Manual toxicity checker
+/home/                  Admin dashboard
+/admin/posts            All attempted posts audit
+/admin/users            Account management
+/model-data             Model signals and learned terms
+/training               Teach new moderation terms
+```
+
+## Toxicity Detection
+
+Ujumbe Safi checks content using:
+
+- saved trained model: `toxicity_model.pkt`
+- saved TF-IDF vectorizer: `tf_idf.pkt`
+- built-in toxic term fallback list
+- admin-taught moderation terms stored in MySQL
+
+Content is checked before being accepted into:
+
+- posts
+- comments
+- messages
+- manual phrase checks
+
+Flagged posts are saved for admin audit instead of disappearing.
+
+## Notes
+
+- `frontend/` contains older static prototypes. The working application is integrated under `backend/`.
+- Uploaded images are stored under `backend/static/uploads/`.
+- `.venv/`, `__pycache__/`, and `.pyc` files should not be committed.
+- The saved model may warn if loaded with a newer scikit-learn version than the one used during training. For best consistency, use the same scikit-learn version used when the model was created.
+
+## Development
+
+Useful commands:
+
+```bash
+python -m py_compile app.py api.py
+python app.py
+```
+
+Commit and push:
+
+```bash
+git status
+git add .
+git commit -m "Describe your change"
+git push
+```
